@@ -6,6 +6,9 @@ using Newtonsoft.Json;
 
 namespace IsKronosUpYet.API.Controllers
 {
+    /// <summary>
+    /// This controller is used for retrieving the status of the realms/ servers
+    /// </summary>
     [Route("api/[controller]")]
     public class StatusController : Controller
     {
@@ -16,6 +19,11 @@ namespace IsKronosUpYet.API.Controllers
             _context = context;
         }
         
+        /// <summary>
+        /// This method is used to check the server status for a server (by id)
+        /// </summary>
+        /// <param name="id">The id of the server to check</param>
+        /// <returns>JSON representation of the server status</returns>
         [HttpGet("{id}")]
         public IActionResult Get(string id)
         {
