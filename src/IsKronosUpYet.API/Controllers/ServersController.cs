@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using IsKronosUpYet.API.Models;
 using Microsoft.AspNet.Mvc;
+using Newtonsoft.Json;
 
 namespace IsKronosUpYet.API.Controllers
 {
@@ -9,16 +9,18 @@ namespace IsKronosUpYet.API.Controllers
     public class ServersController : Controller
     {
         private readonly DatabaseContext _context;
-
+        
         public ServersController(DatabaseContext context)
         {
             _context = context;
         }
         
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return _context.Servers.Select(s => s.Name);
+            var servers = _context.Servers.ToList();
+            var serialized = JsonConvert.SerializeObject(servers);
+            return this.Ok(serialized);
         }
     }
 }
