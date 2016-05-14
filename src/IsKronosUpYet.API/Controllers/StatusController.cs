@@ -62,5 +62,38 @@ namespace IsKronosUpYet.API.Controllers
             var serialized = JsonConvert.SerializeObject(formatted);
             return this.Ok(serialized);
         }
+        
+        [HttpPost()]
+        public IActionResult Post([FromBody] ServerStatusRequest payload)
+        {
+            if (payload == null)
+            {
+                return this.HttpBadRequest();
+            }
+            
+            var status = new ServerStatus
+            {
+                Id = Guid.NewGuid(),
+                Server = new Server {  Id = payload.id },
+                Timestamp = DateTimeOffset.UtcNow,
+                Status = payload.status,
+            };
+
+            try
+            {
+                this._context.AddStatus(status);
+                return this.Ok();
+            }
+            catch
+            {
+                return this.HttpNotFound();
+            }
+        }
+
+        public class ServerStatusRequest
+        {
+            public Guid id { get; set; }
+            public bool status { get; set; }
+        }
     }
 }

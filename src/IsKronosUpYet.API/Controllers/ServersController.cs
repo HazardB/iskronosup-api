@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using IsKronosUpYet.API.Models;
+﻿using IsKronosUpYet.API.Models;
 using Microsoft.AspNet.Mvc;
 using Newtonsoft.Json;
 

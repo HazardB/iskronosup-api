@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity;
 using System.Linq;
+using IsKronosUpYet.API.Caching;
+using IsKronosUpYet.API.Models;
+using Microsoft.Data.Entity;
 
-namespace IsKronosUpYet.API.Models
+namespace IsKronosUpYet.API.Controllers
 {
     public class DatabaseContext : DbContext
     {
@@ -14,11 +16,14 @@ namespace IsKronosUpYet.API.Models
         public DbSet<ServerStatus> ServerStatus { get; set; }
         public DbSet<News> News { get; set; }
 
-        public List<ServerStatus> RetrieveAllStatuses()
+        public List<ServerStatus> RetrieveAllStatuses(bool ignoreCache = false)
         {
-            var cachedStatuses = InMemoryModelCache.Instance.Retrieve(StatusCacheKey) as List<ServerStatus>;
-            if(cachedStatuses != null)
-                return cachedStatuses;
+            if (!ignoreCache)
+            {
+                var cachedStatuses = InMemoryModelCache.Instance.Retrieve(StatusCacheKey) as List<ServerStatus>;
+                if (cachedStatuses != null)
+                    return cachedStatuses;
+            }
 
             var statuses = this.ServerStatus
                .Include(st => st.Server)
@@ -35,7 +40,7 @@ namespace IsKronosUpYet.API.Models
             var cachedServers = InMemoryModelCache.Instance.Retrieve(ServerCacheKey) as List<Server>;
             if (cachedServers != null)
                 return cachedServers;
-
+            
             var servers = this.Servers.ToList();
             InMemoryModelCache.Instance.Save(ServerCacheKey, servers);
 
@@ -48,6 +53,15 @@ namespace IsKronosUpYet.API.Models
             modelBuilder.Entity<Server>()
                 .Property(b => b.IP)
                 .IsRequired();
+        }
+
+        public void AddStatus(ServerStatus status)
+        {
+            this.ServerStatus.Add(status, GraphBehavior.SingleObject);
+            this.SaveChanges();
+
+            // Remove (and thus invalidate) the status cache, forcing re-retrieval at next request.
+            InMemoryModelCache.Instance.Remove(StatusCacheKey);
         }
     }
 }
