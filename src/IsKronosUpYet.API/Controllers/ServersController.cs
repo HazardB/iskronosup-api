@@ -25,7 +25,7 @@ namespace IsKronosUpYet.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var servers = _context.Servers.ToList();
+            var servers = _context.RetrieveAllServers();
             var serialized = JsonConvert.SerializeObject(servers);
             return this.Ok(serialized);
         }

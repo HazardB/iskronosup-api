@@ -28,12 +28,9 @@ namespace IsKronosUpYet.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var statuses = _context.ServerStatus
-                .Include(st => st.Server)
-                .Where(s => s.Timestamp > (DateTimeOffset.UtcNow - TimeSpan.FromMinutes(15)))
-                .ToList();
+            var allStatuses = this._context.RetrieveAllStatuses();
 
-            var returnObject = statuses.GroupBy(ss => ss.Server.Id)
+            var formatted = allStatuses.GroupBy(ss => ss.Server.Id)
                 .Select(g =>
                 {
                     var latestStatus = g.Where(st => st.Server.Id == g.Key)
@@ -62,61 +59,7 @@ namespace IsKronosUpYet.API.Controllers
                 })
                 .ToList();
 
-         
-            var serialized = JsonConvert.SerializeObject(returnObject);
-            return this.Ok(serialized);
-        }
-
-        /// <summary>
-        /// This method is used to check the server status for a server (by id)
-        /// </summary>
-        /// <param name="id">The id of the server to check</param>
-        /// <returns>JSON representation of the server status</returns>
-        [HttpGet("{id}")]
-        public IActionResult Get(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                // Log bad request - no id provided
-                return this.HttpBadRequest();
-            }
-
-            Guid serverId;
-            if (!Guid.TryParse(id, out serverId))
-            {
-                // Log bad request - incorrectly formatted id
-                return this.HttpBadRequest();
-            }
-
-            // attempt to lookup server with given id
-            var server = _context.Servers.SingleOrDefault(s => s.Id == serverId);
-            if (server == null)
-            {
-                // Log bad request - no server with that id
-                return this.HttpBadRequest();
-            }
-
-            // retrieve the latest server status
-            var latestServerStatus = _context.ServerStatus
-                .Where(ss => ss.Id == serverId)
-                .OrderBy(ss => ss.Timestamp)
-                .Take(1)
-                .SingleOrDefault();
-
-            if (latestServerStatus == null)
-            {
-                // Log bad request - no latest status with that id
-                return this.HttpBadRequest();
-            }
-
-            var returnObject = new
-            {
-                server.Id,
-                Up = latestServerStatus.Status,
-                LastUpdated = latestServerStatus.Timestamp,
-            };
-
-            var serialized = JsonConvert.SerializeObject(returnObject);
+            var serialized = JsonConvert.SerializeObject(formatted);
             return this.Ok(serialized);
         }
     }
