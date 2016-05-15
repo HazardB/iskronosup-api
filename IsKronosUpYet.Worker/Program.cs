@@ -17,13 +17,15 @@ namespace IsKronosUpYet.Worker
 {
     public class Program
     {
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private static List<Server> cachedServers;
+        // Configuration variables:
         private static string _customAuthorisationHeader = "x-worker-auth";
         private static string _customAuthorisationSecret = "!CHANGE-THIS!";
-
         private static string baseApiUri = "http://localhost:59946";
 
+  
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static List<Server> cachedServers;
+        
         static void Main(string[] args)
         {
             AsyncContext.Run(() => MainAsync(args));

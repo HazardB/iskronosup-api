@@ -14,9 +14,12 @@ namespace IsKronosUpYet.API.Controllers
     [Route("api/[controller]")]
     public class StatusController : Controller
     {
-        private readonly DatabaseContext _context;
+        // Configuration variables
         private string _customAuthorisationHeader = "x-worker-auth";
         private string _customAuthorisationSecret = "!CHANGE-THIS!";
+
+        private readonly DatabaseContext _context;
+
 
         public StatusController(DatabaseContext context)
         {
