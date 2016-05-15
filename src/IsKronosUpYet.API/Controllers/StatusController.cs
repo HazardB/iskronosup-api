@@ -15,6 +15,8 @@ namespace IsKronosUpYet.API.Controllers
     public class StatusController : Controller
     {
         private readonly DatabaseContext _context;
+        private string _customAuthorisationHeader = "x-worker-auth";
+        private string _customAuthorisationSecret = "!CHANGE-THIS!";
 
         public StatusController(DatabaseContext context)
         {
@@ -66,6 +68,19 @@ namespace IsKronosUpYet.API.Controllers
         [HttpPost()]
         public IActionResult Post([FromBody] ServerStatusRequest payload)
         {
+            // TODO: Implement more sophisticated API token authorization
+            if (Request.Headers.ContainsKey(_customAuthorisationHeader))
+            {
+                if (Request.Headers[_customAuthorisationHeader] != _customAuthorisationSecret)
+                {
+                    return this.HttpUnauthorized();
+                }
+            }
+            else
+            {
+                return this.HttpUnauthorized();
+            }
+
             if (payload == null)
             {
                 return this.HttpBadRequest();

@@ -19,6 +19,9 @@ namespace IsKronosUpYet.Worker
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static List<Server> cachedServers;
+        private static string _customAuthorisationHeader = "x-worker-auth";
+        private static string _customAuthorisationSecret = "!CHANGE-THIS!";
+
         private static string baseApiUri = "http://localhost:59946";
 
         static void Main(string[] args)
@@ -110,6 +113,10 @@ namespace IsKronosUpYet.Worker
                   .Accept
                   .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+                // Change the following for your extremely basic authorisation to work
+                // TODO: Remove this and use a more sophisticated authorisation method (See StatusController.cs)
+                client.DefaultRequestHeaders.Add(_customAuthorisationHeader, _customAuthorisationSecret);
+
                 try
                 {
                     var response = await client.PostAsync(baseApiUri + "/api/status", new StringContent(json, Encoding.UTF8, "application/json"));
@@ -163,28 +170,6 @@ namespace IsKronosUpYet.Worker
             }
         }
 
-        private class Server
-        {
-            public Guid Id { get; set; }
-            public string IP { get; set; }
-            public int Port { get; set; }
-            public string Name { get; set; }
-
-            public override string ToString()
-            {
-                return $"Id={Id},IP={IP},Port={Port},Name={Name}";
-            }
-        }
-
-        private class ServerStatusUpdate
-        {
-            public Guid id { get; set; }
-            public bool status { get; set; }
-
-            public override string ToString()
-            {
-                return $"id={id},status={status}";
-            }
-        }
+       
     }
 }
