@@ -61,7 +61,8 @@ namespace IsKronosUpYet.API.Controllers
             this.SaveChanges();
 
             // Remove (and thus invalidate) the status cache, forcing re-retrieval at next request.
-            InMemoryModelCache.Instance.Remove(StatusCacheKey);
+            //InMemoryModelCache.Instance.Remove(StatusCacheKey);
+            // Removed for now - this might have been a bad move.
         }
     }
 }
